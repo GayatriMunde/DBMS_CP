@@ -1,6 +1,73 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+void droptable(vector<string> &querytocons)
+{
+    string schema = "schema.txt";
+    if(querytocons.size()<2)
+    {
+        cout<<"Incorrect Query"<<endl;
+        return;
+    }
+
+    ifstream table(schema);
+    string tname = querytocons[2];
+     bool tablepresent = false;
+    while(table)
+    {
+         string currentline;
+        getline(table, currentline);
+        cout.flush();
+
+        if (currentline.substr(0, tname.length()) == tname)
+        {
+            tablepresent = true;
+        }
+    }
+
+    if(tablepresent==false)
+    {
+        cout<<"Table does not exists.."<<endl;
+    }
+    else
+    {
+
+        ifstream fin;
+        ofstream fout;
+         fout.open("tempfile.txt",ios::out);
+       
+         ifstream table(schema);
+         
+         bool exists = false;
+        while(table)
+        {
+            string line;
+            getline(table, line);
+            cout.flush();
+            cout<<line[0]<<" ";
+            if(line.substr(0, tname.length()) == tname){
+                exists = true;
+            }
+            else
+            {
+                fout.write(line.data(),line.size());
+                fout<<endl;
+            }
+        }
+        fin.close();
+        fout.close();
+       
+         int res = remove(schema.c_str());
+        cout<<res<<endl;
+        string first = "tempfile1.txt";
+        
+        rename("tempfile1.txt","schema.txt");
+
+
+    }
+}
+
 void create(vector<string> &querytocons)
 {
 
@@ -123,5 +190,14 @@ int main()
         {
             cout << "Incorrect syntax!!!" << endl;
         }
+    }
+    else if(querytocons[0]=="drop")
+    {
+        if(querytocons[1]=="table")
+        {
+            droptable(querytocons);
+        }
+        
+
     }
 }
