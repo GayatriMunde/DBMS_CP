@@ -1,70 +1,75 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
 void droptable(vector<string> &querytocons)
 {
     string schema = "schema.txt";
-    if(querytocons.size()<2)
+    if (querytocons.size() < 2)
     {
-        cout<<"Incorrect Query"<<endl;
+        cout << "Incorrect Query" << endl;
         return;
     }
 
-    ifstream table(schema);
+    fstream table;
+    table.open("schema.txt", ios::in);
     string tname = querytocons[2];
-     bool tablepresent = false;
-    while(table)
+    bool tablepresent = false;
+    while (table)
     {
-         string currentline;
+        string currentline;
         getline(table, currentline);
         cout.flush();
 
         if (currentline.substr(0, tname.length()) == tname)
         {
             tablepresent = true;
+            // string to_remove = tname + ".txt";
+            // cout << remove(tname.c_str()) << endl;
+            // cout<<remove(tname.c_str());
         }
     }
-
-    if(tablepresent==false)
+    table.close();
+    if (tablepresent == false)
     {
-        cout<<"Table does not exists.."<<endl;
+        cout << "Table does not exists.." << endl;
     }
     else
     {
 
-        ifstream fin;
+        fstream table;
         ofstream fout;
-         fout.open("tempfile.txt",ios::out);
-       
-         ifstream table(schema);
-         
-         bool exists = false;
-        while(table)
+        fout.open("tempfile.txt", ios::out);
+        table.open("schema.txt", ios::in);
+        //  ifstream table(schema);
+
+        bool exists = false;
+        while (table)
         {
             string line;
             getline(table, line);
             cout.flush();
-            cout<<line[0]<<" ";
-            if(line.substr(0, tname.length()) == tname){
+            cout << line[0] << " ";
+            if (line.substr(0, tname.length()) == tname)
+            {
                 exists = true;
             }
             else
             {
-                fout.write(line.data(),line.size());
-                fout<<endl;
+                fout.write(line.data(), line.size());
+                fout << endl;
             }
         }
-        fin.close();
+        table.close();
         fout.close();
-       
-         int res = remove(schema.c_str());
-        cout<<res<<endl;
-        string first = "tempfile1.txt";
-        
-        rename("tempfile1.txt","schema.txt");
+        char char_array[schema.size() + 1];
 
+        strcpy(char_array, schema.c_str());
+        //  int res = remove(char_array);
+        int res = remove("schema.txt");
+        cout << res << endl;
+        //   string first = "tempfile1.txt";
 
+        rename("tempfile.txt", "schema.txt");
     }
 }
 
@@ -108,28 +113,25 @@ void create(vector<string> &querytocons)
         foutfortable.open(table_name, ios_base::app);
 
         fout << querytocons[2];
-        for (int j = 5; j < querytocons.size(); j+=3)
+        for (int j = 5; j < querytocons.size(); j += 3)
         {
             if (querytocons[j] == "int")
             {
                 fout << "#" << querytocons[j - 1] << "#" << querytocons[j];
-                
             }
 
             if (querytocons[j] == "decimal")
             {
                 fout << "#" << querytocons[j - 1] << "#" << querytocons[j];
-               
             }
 
             if (querytocons[j].substr(0, 4) == "char")
             {
                 fout << "#" << querytocons[j - 1] << "#" << querytocons[j];
-               
             }
         }
         fout << endl;
-      
+
         fout.close();
         foutfortable.close();
         cout << "Table created successfully" << endl;
@@ -191,13 +193,11 @@ int main()
             cout << "Incorrect syntax!!!" << endl;
         }
     }
-    else if(querytocons[0]=="drop")
+    else if (querytocons[0] == "drop")
     {
-        if(querytocons[1]=="table")
+        if (querytocons[1] == "table")
         {
             droptable(querytocons);
         }
-        
-
     }
 }
