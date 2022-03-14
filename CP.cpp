@@ -4,6 +4,7 @@ using namespace std;
 void droptable(vector<string> &querytocons)
 {
     string schema = "schema.txt";
+    string deleteline;
     if (querytocons.size() < 2)
     {
         cout << "Incorrect Query" << endl;
@@ -23,6 +24,7 @@ void droptable(vector<string> &querytocons)
         if (currentline.substr(0, tname.length()) == tname)
         {
             tablepresent = true;
+            deleteline = currentline;
             // string to_remove = tname + ".txt";
             // cout << remove(tname.c_str()) << endl;
             // cout<<remove(tname.c_str());
@@ -49,14 +51,19 @@ void droptable(vector<string> &querytocons)
             getline(table, line);
             cout.flush();
             cout << line[0] << " ";
-            if (line.substr(0, tname.length()) == tname)
-            {
-                exists = true;
-            }
-            else
-            {
+            // if (line.substr(0, tname.length()) == tname)
+            // {
+            //     exists = true;
+            // }
+            // else
+            // {
+            //     fout.write(line.data(), line.size());
+            //     fout << endl;
+            // }
+
+            if (line != deleteline && line != ""){
                 fout.write(line.data(), line.size());
-                // fout << endl;
+                fout << endl;
             }
         }
         table.close();

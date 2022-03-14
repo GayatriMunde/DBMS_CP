@@ -1,1 +1,3 @@
 stud#id#int
+pro#id#int
+emp#id#int
