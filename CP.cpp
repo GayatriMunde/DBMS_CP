@@ -56,18 +56,23 @@ void droptable(vector<string> &querytocons)
             else
             {
                 fout.write(line.data(), line.size());
-                fout << endl;
+                // fout << endl;
             }
         }
         table.close();
         fout.close();
-        char char_array[schema.size() + 1];
+        // char char_array[schema.size() + 1];
 
-        strcpy(char_array, schema.c_str());
+        // strcpy(char_array, schema.c_str());
         //  int res = remove(char_array);
         int res = remove("schema.txt");
         cout << res << endl;
         //   string first = "tempfile1.txt";
+        string toRemove = tname + ".txt";
+        char char_array[toRemove.size() + 1];
+        strcpy(char_array, toRemove.c_str());
+
+        int r = remove(char_array);
 
         rename("tempfile.txt", "schema.txt");
     }
@@ -150,7 +155,7 @@ int main()
     while (ss >> temp)
     {
         transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
-        cout << temp << endl;
+        //cout << temp << endl;
         querytocons.push_back(temp);
     }
 
