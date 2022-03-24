@@ -1,3 +1,2 @@
-stud#id#int
-pro#id#int
-emp#id#int
+stud#id#int#name#str#class#int
+emp#id#int#name#str#position#str#salary#double#age#int
