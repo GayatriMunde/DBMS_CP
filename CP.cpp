@@ -24,26 +24,26 @@ bool isTablePresent(string tname, string &deleteline){
 }
 
 
-void insert(vector<string> &querytocons){
-    string schema = "schema.txt";
-    string tname = querytocons[2];
-    string requiredline;
-    if (querytocons.size() < 2){
-        cout << "Incorrect Query" << endl;
-        return;
-    }
+// void insert(vector<string> &querytocons){
+//     string schema = "schema.txt";
+//     string tname = querytocons[2];
+//     string requiredline;
+//     if (querytocons.size() < 2){
+//         cout << "Incorrect Query" << endl;
+//         return;
+//     }
 
-    if (!isTablePresent(tname, requiredline))
-    {
-        cout << "Table does not exists.." << endl;
-    }
+//     if (!isTablePresent(tname, requiredline))
+//     {
+//         cout << "Table does not exists.." << endl;
+//     }
 
-    if (querytocons[3] == "values"){
-        if (querytocons[4] == "("){
+//     if (querytocons[3] == "values"){
+//         if (querytocons[4] == "("){
             
-        }
-    }
-}
+//         }
+//     }
+// }
 
 
 void describeTable(vector<string> &querytocons){
@@ -208,6 +208,192 @@ void create(vector<string> &querytocons){
     }
 }
 
+bool checkint(string temp)
+{
+   for(auto it:temp)
+   {
+       if(isdigit(it)==0)
+       {
+           return false;
+       }
+   }
+   return true;
+}
+bool checkdouble(string temp)
+{
+   for(auto it:temp)
+   {    
+       if(it=='.')
+       {
+           continue;
+       }
+       if(isdigit(it)==0)
+       {
+           return false;
+       }
+   }
+   return true;
+}
+
+bool checkchar(string temp)
+{
+   
+   for(auto it:temp)
+   {
+       if(isdigit(it)==0)
+       {
+           continue;
+       }
+       else
+       {
+          return false;
+       }
+   }
+   return true;
+}
+void tokenize(string s, string del,vector<string> &dtypes)
+{
+    int start = 0;
+    int end = s.find(del);
+    while (end != -1) {
+        dtypes.push_back(s.substr(start, end - start));
+      
+        start = end + del.size();
+        end = s.find(del, start);
+    }
+  
+    dtypes.push_back(s.substr(start, end - start));
+}
+
+void insertquery(vector<string> querytocons){
+
+    string table_name = querytocons[2];
+    string tname=querytocons[2]+".txt";
+    string schema = "schema.txt";
+    ifstream table(schema);
+    string currline="";
+    bool tablepresent=false;
+     while (table)
+    {
+        string currentline;
+        getline(table, currentline);
+        cout.flush();
+
+        if (currentline.substr(0, table_name.length()) == table_name)
+        {
+            tablepresent = true;
+            currline = currentline;
+            break;
+        }
+    }
+    if(tablepresent==false)
+    {
+        cout<<"Table does not exist "<<endl;
+        return;
+    }
+
+    vector<string> dtypes;
+    //  char *str = currline.c_str();
+    // char *token = strtok(currline.c_str(), "#");
+
+    tokenize(currline,"#",dtypes);
+    // for(int i=0;i<dtypes.size();i++)
+    // {
+    //     cout<<dtypes[i]<<" ";
+    // }
+    
+    vector<string> dtypetocons;
+    for(int i = 2;i<dtypes.size();i+=2)
+    {
+        dtypetocons.push_back(dtypes[i]);
+    }
+
+    // for(int i = 0;i<dtypetocons.size();i++)
+    // {
+    //     cout<<dtypetocons[i]<<" ";
+    // }
+    cout<<endl;
+   // return;
+   
+
+    vector<string> datatoinsert;
+
+    for(int i=5;i<querytocons.size()-2;i++)
+    {
+        if(querytocons[i]!=",")
+        {
+            datatoinsert.push_back(querytocons[i]);
+        }
+    }
+
+    // for(auto it:datatoinsert)
+    // {
+    //     cout<<it<<" ";
+    // }
+    if(datatoinsert.size()!=dtypetocons.size())
+    {
+        cout<<"asa kasa chalel re baba"<<endl;
+        return;
+    }
+     
+    for(int i = 0;i<datatoinsert.size();i++)
+    {
+        if(dtypetocons[i]=="char" or dtypetocons[i]=="str")
+        {
+            if(checkchar(datatoinsert[i])==false)
+            {
+                  cout<<" error!!!!wrong datatype"<<endl;
+                return;
+            }
+        }
+        else if(dtypetocons[i]=="int")
+        {
+            if(checkint(datatoinsert[i])==false)
+            {
+                  cout<<" error!!!!wrong datatype"<<endl;
+                return;
+            }
+        }
+        else if(dtypetocons[i]=="double" or dtypetocons[i]=="number")
+        {
+             if(checkdouble(datatoinsert[i])==false)
+            {
+                cout<<" error!!!!wrong datatype"<<endl;
+                return;
+            }
+        }
+    }
+
+    //return;
+    ofstream insert_table;
+    insert_table.open(tname,std::ios_base::app);
+
+
+        if(insert_table){
+    
+
+           
+            for(int i=5;i<querytocons.size()-2;i++){
+             if(querytocons[i] != ",")
+             {
+             insert_table<<"#"<<querytocons[i];
+             }
+            }
+             insert_table<<endl;
+            cout<<"Data Inserted"<<endl;
+
+        }
+
+
+        else{
+            cout<<"Table does not exists"<<endl;
+            }
+
+
+        insert_table.close();
+    }
+
+
 int main()
 {
     string s;
@@ -259,11 +445,22 @@ int main()
     else if (querytocons[0] == "describe"){
         describeTable(querytocons);
     }
-    else if (querytocons[0] == "insert"){
-        if (querytocons[1] == "into"){
-            insert(querytocons);
+    else if(querytocons[0]=="insert")
+    {
+        if(querytocons[querytocons.size()-1]!=";")
+        {
+              cout << "Please provide ; at the end" << endl;
+        }
+        else
+        {
+           insertquery(querytocons);
         }
     }
+    // else if (querytocons[0] == "insert"){
+    //     if (querytocons[1] == "into"){
+    //         insert(querytocons);
+    //     }
+    // }
 
 
     return 0;
