@@ -1,2 +1,3 @@
 stud#id#int#name#str#class#int
-emp#id#int#name#str#position#str#salary#double#age#int
+sid#name#char#roll#int
+test#trial#int

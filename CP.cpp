@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
 
@@ -40,7 +39,7 @@ bool isTablePresent(string tname, string &deleteline){
 
 //     if (querytocons[3] == "values"){
 //         if (querytocons[4] == "("){
-            
+
 //         }
 //     }
 // }
@@ -127,7 +126,83 @@ void dropTable(vector<string> &querytocons)
         rename("tempfile.txt", "schema.txt");
     }
 }
+void truncateTable(vector<string> &querytocons)
+{
+    string schema = "schema.txt";
+    string tname = querytocons[2];
+    string deleteline;
+    if (querytocons.size() < 2){
+        cout << "Incorrect Query" << endl;
+        return;
+    }
 
+    if (!isTablePresent(tname, deleteline)){
+        cout << "Table does not exists.." << endl;
+        return;
+    }
+    else{
+        fstream table;
+        ofstream fout;
+
+        string toRemove = tname + ".txt";
+        char char_array[toRemove.size() + 1];
+        strcpy(char_array, toRemove.c_str());
+
+        int r = remove(char_array);
+
+
+    }
+}
+void selectCol(vector<string> &querytocons)
+{
+    string schema = "schema.txt";
+    string tname = querytocons[querytocons.size()-2];
+    string requiredline;
+    if (querytocons.size() < 4 or querytocons[querytocons.size()-3]!="from"){
+        cout << "Incorrect Query" << endl;
+        return;
+    }
+
+    if (!isTablePresent(tname, requiredline)){
+        cout << "Table does not exists.." << endl;
+        return;
+    }
+    else{
+        fstream table;
+        string line;
+        //ofstream fout;
+        ifstream myfile(tname+".txt");
+
+        if (myfile.is_open())
+        {  if(querytocons[1]=="*")
+            {
+                while ( getline (myfile,line) )
+                {   for(int i=0;i<line.length();i++)
+                        {   if(line[i] == '#')
+                                cout<<" ";
+                            else
+                                cout << line[i];
+                        }
+                }
+            }
+            else
+            {
+                //for selected columns
+
+
+            }
+
+
+            myfile.close();
+        }
+
+        else cout << "Unable to open file";
+
+
+
+
+    }
+}
 
 void create(vector<string> &querytocons){
     ofstream fout, foutfortable;
@@ -195,7 +270,7 @@ void create(vector<string> &querytocons){
 
         // if (j != querytocons.size()-1){
         //     if (querytocons[j] == "foreigh" && querytocons[j+1] == "key"){
-                
+
         //     }
         // }
 
@@ -222,7 +297,7 @@ bool checkint(string temp)
 bool checkdouble(string temp)
 {
    for(auto it:temp)
-   {    
+   {
        if(it=='.')
        {
            continue;
@@ -237,7 +312,7 @@ bool checkdouble(string temp)
 
 bool checkchar(string temp)
 {
-   
+
    for(auto it:temp)
    {
        if(isdigit(it)==0)
@@ -257,11 +332,11 @@ void tokenize(string s, string del,vector<string> &dtypes)
     int end = s.find(del);
     while (end != -1) {
         dtypes.push_back(s.substr(start, end - start));
-      
+
         start = end + del.size();
         end = s.find(del, start);
     }
-  
+
     dtypes.push_back(s.substr(start, end - start));
 }
 
@@ -301,7 +376,7 @@ void insertquery(vector<string> querytocons){
     // {
     //     cout<<dtypes[i]<<" ";
     // }
-    
+
     vector<string> dtypetocons;
     for(int i = 2;i<dtypes.size();i+=2)
     {
@@ -314,7 +389,7 @@ void insertquery(vector<string> querytocons){
     // }
     cout<<endl;
    // return;
-   
+
 
     vector<string> datatoinsert;
 
@@ -335,7 +410,7 @@ void insertquery(vector<string> querytocons){
         cout<<"asa kasa chalel re baba"<<endl;
         return;
     }
-     
+
     for(int i = 0;i<datatoinsert.size();i++)
     {
         if(dtypetocons[i]=="char" or dtypetocons[i]=="str")
@@ -370,9 +445,9 @@ void insertquery(vector<string> querytocons){
 
 
         if(insert_table){
-    
 
-           
+
+
             for(int i=5;i<querytocons.size()-2;i++){
              if(querytocons[i] != ",")
              {
@@ -392,7 +467,6 @@ void insertquery(vector<string> querytocons){
 
         insert_table.close();
     }
-
 
 int main()
 {
@@ -456,12 +530,17 @@ int main()
            insertquery(querytocons);
         }
     }
-    // else if (querytocons[0] == "insert"){
-    //     if (querytocons[1] == "into"){
-    //         insert(querytocons);
-    //     }
-    // }
+    else if(querytocons[0]=="truncate")
+    {
+        if (querytocons[1] == "table"){
+            truncateTable(querytocons);
+        }
 
+    }
+    else if(querytocons[0]=="select")
+    {
+        selectCol(querytocons);
+    }
 
     return 0;
 }
