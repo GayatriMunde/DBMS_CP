@@ -332,7 +332,7 @@ void insertquery(vector<string> querytocons){
     // }
     if(datatoinsert.size()!=dtypetocons.size())
     {
-        cout<<"asa kasa chalel re baba"<<endl;
+        cout<<"Please add the necessary attributes only"<<endl;
         return;
     }
      
