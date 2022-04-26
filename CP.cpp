@@ -2,6 +2,20 @@
 using namespace std;
 
 
+void tokenize(string s, string del,vector<string> &dtypes)
+{
+    int start = 0;
+    int end = s.find(del);
+    while (end != -1) {
+        dtypes.push_back(s.substr(start, end - start));
+
+        start = end + del.size();
+        end = s.find(del, start);
+    }
+
+    dtypes.push_back(s.substr(start, end - start));
+}
+
 bool isTablePresent(string tname, string &deleteline){
     string schema = "schema.txt";
     fstream table;
@@ -158,6 +172,12 @@ void selectCol(vector<string> &querytocons)
     string schema = "schema.txt";
     string tname = querytocons[querytocons.size()-2];
     string requiredline;
+    vector<string> tableinfo;
+    map<string,int> collist;
+    vector<string> colnamecheck;
+    
+    vector<int> st;
+    vector<string> selectedcolumns;
     if (querytocons.size() < 4 or querytocons[querytocons.size()-3]!="from"){
         cout << "Incorrect Query" << endl;
         return;
@@ -168,6 +188,27 @@ void selectCol(vector<string> &querytocons)
         return;
     }
     else{
+         tokenize(requiredline,"#",tableinfo);
+        // for(auto it:tableinfo)
+        // {
+        //     cout<<it<<" ";
+        // }
+        
+        int cnt=0;
+        for(int i = 1;i<tableinfo.size();i+=2)
+        {
+            collist[tableinfo[i]] = cnt;
+            colnamecheck.push_back(tableinfo[i]);
+            
+            cnt++;
+        }
+        // for(auto it:collist)
+        // {
+        //     cout<<it.first<<" "<<it.second<<endl;
+        // }
+        // cout<<endl;
+        // cout<<"*************"<<endl;
+        // cout<<requiredline<<endl;
         fstream table;
         string line;
         //ofstream fout;
@@ -188,6 +229,61 @@ void selectCol(vector<string> &querytocons)
             else
             {
                 //for selected columns
+                 int ind = 1;
+                while(querytocons[ind]!="from")
+                {   
+                    if(querytocons[ind]!=",")
+                    {
+                       // cout<<querytocons[ind]<<" ";
+                        selectedcolumns.push_back(querytocons[ind]);
+                        int pos = collist[querytocons[ind]];
+                        st.push_back(pos);
+                    }
+
+
+                    ind++;
+                } 
+
+                for(auto it:collist)
+                {
+                    cout<<it.first<<" ";
+                }
+                cout<<endl;
+                cout<<"****"<<endl;
+                for(auto it:selectedcolumns)
+                {   
+                    vector<string>::iterator iter;
+                    iter = find (colnamecheck.begin(),colnamecheck.end(), it);
+                    if(iter==colnamecheck.end())
+                    {
+                        cout<<"please add right col name"<<endl;
+                        return;
+                    }
+
+                   // cout<<it<<" ";
+                }
+
+                while ( getline (myfile,line) )
+                {   
+
+                     vector<string> data;
+                    // cout<<"hello"<<endl;
+                     tokenize(line,"#",data);
+                    //  for(auto it:data)
+                    //  {
+                    //      cout<<it<<" ";
+                    //  }
+                     for(auto it:st)
+                     {  // cout<<it<<" ";
+                         cout<<data[it+1]<<" ";
+
+                     }
+                     cout<<endl;
+
+
+
+                }
+
 
 
             }
@@ -326,19 +422,7 @@ bool checkchar(string temp)
    }
    return true;
 }
-void tokenize(string s, string del,vector<string> &dtypes)
-{
-    int start = 0;
-    int end = s.find(del);
-    while (end != -1) {
-        dtypes.push_back(s.substr(start, end - start));
 
-        start = end + del.size();
-        end = s.find(del, start);
-    }
-
-    dtypes.push_back(s.substr(start, end - start));
-}
 
 void insertquery(vector<string> querytocons){
 
