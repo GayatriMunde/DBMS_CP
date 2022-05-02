@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
-void tokenize(string s, string del,vector<string> &dtypes)
+void tokenize(string s, string del, vector<string> &dtypes)
 {
     int start = 0;
     int end = s.find(del);
-    while (end != -1) {
+    while (end != -1)
+    {
         dtypes.push_back(s.substr(start, end - start));
 
         start = end + del.size();
@@ -16,17 +16,20 @@ void tokenize(string s, string del,vector<string> &dtypes)
     dtypes.push_back(s.substr(start, end - start));
 }
 
-bool isTablePresent(string tname, string &deleteline){
+bool isTablePresent(string tname, string &deleteline)
+{
     string schema = "schema.txt";
     fstream table;
     table.open("schema.txt", ios::in);
     bool tablepresent = false;
-    while (table){
+    while (table)
+    {
         string currentline;
         getline(table, currentline);
         cout.flush();
 
-        if (currentline.substr(0, tname.length()) == tname){
+        if (currentline.substr(0, tname.length()) == tname)
+        {
             tablepresent = true;
             deleteline = currentline;
         }
@@ -35,7 +38,6 @@ bool isTablePresent(string tname, string &deleteline){
 
     return tablepresent;
 }
-
 
 // void insert(vector<string> &querytocons){
 //     string schema = "schema.txt";
@@ -58,11 +60,12 @@ bool isTablePresent(string tname, string &deleteline){
 //     }
 // }
 
-
-void describeTable(vector<string> &querytocons){
+void describeTable(vector<string> &querytocons)
+{
     string tname = querytocons[1];
     string requiredline = "";
-    if (!isTablePresent(tname, requiredline)){
+    if (!isTablePresent(tname, requiredline))
+    {
         cout << "Table does not exists.." << endl;
         return;
     }
@@ -70,19 +73,26 @@ void describeTable(vector<string> &querytocons){
     int i = tname.size() + 1;
     int countHash = 0;
 
-    cout << endl << endl;
-    cout << "------" << "Table " << tname << "-----" << endl;
-    while(i < requiredline.size()){
-        if (requiredline[i] == '#'){
-            if (countHash % 2 == 0){
+    cout << endl
+         << endl;
+    cout << "------"
+         << "Table " << tname << "-----" << endl;
+    while (i < requiredline.size())
+    {
+        if (requiredline[i] == '#')
+        {
+            if (countHash % 2 == 0)
+            {
                 cout << "--";
             }
-            else{
+            else
+            {
                 cout << endl;
             }
             countHash++;
         }
-        else{
+        else
+        {
             cout << requiredline[i];
         }
         i++;
@@ -91,22 +101,24 @@ void describeTable(vector<string> &querytocons){
     return;
 }
 
-
 void dropTable(vector<string> &querytocons)
 {
     string schema = "schema.txt";
     string tname = querytocons[2];
     string deleteline;
-    if (querytocons.size() < 2){
+    if (querytocons.size() < 2)
+    {
         cout << "Incorrect Query" << endl;
         return;
     }
 
-    if (!isTablePresent(tname, deleteline)){
+    if (!isTablePresent(tname, deleteline))
+    {
         cout << "Table does not exists.." << endl;
         return;
     }
-    else{
+    else
+    {
         fstream table;
         ofstream fout;
         fout.open("tempfile.txt", ios::out);
@@ -119,9 +131,10 @@ void dropTable(vector<string> &querytocons)
             string line;
             getline(table, line);
             cout.flush();
-            //cout << line[0] << " ";
+            // cout << line[0] << " ";
 
-            if (line != deleteline && line != ""){
+            if (line != deleteline && line != "")
+            {
                 fout.write(line.data(), line.size());
                 fout << endl;
             }
@@ -145,16 +158,19 @@ void truncateTable(vector<string> &querytocons)
     string schema = "schema.txt";
     string tname = querytocons[2];
     string deleteline;
-    if (querytocons.size() < 2){
+    if (querytocons.size() < 2)
+    {
         cout << "Incorrect Query" << endl;
         return;
     }
 
-    if (!isTablePresent(tname, deleteline)){
+    if (!isTablePresent(tname, deleteline))
+    {
         cout << "Table does not exists.." << endl;
         return;
     }
-    else{
+    else
+    {
         fstream table;
         ofstream fout;
 
@@ -163,43 +179,64 @@ void truncateTable(vector<string> &querytocons)
         strcpy(char_array, toRemove.c_str());
 
         int r = remove(char_array);
-
-
     }
 }
 void selectCol(vector<string> &querytocons)
 {
     string schema = "schema.txt";
-    string tname = querytocons[querytocons.size()-2];
-    string requiredline;
-    vector<string> tableinfo;
-    map<string,int> collist;
-    vector<string> colnamecheck;
-    
-    vector<int> st;
-    vector<string> selectedcolumns;
-    if (querytocons.size() < 4 or querytocons[querytocons.size()-3]!="from"){
-        cout << "Incorrect Query" << endl;
-        return;
+   // string tname = querytocons[querytocons.size() - 2];
+    string tname = querytocons[3];
+
+
+
+
+  //  cout<<tname<<endl;
+
+    int fromindex = -99;
+    for(int i = 0;i<querytocons.size();i++)
+    {
+        if(querytocons[i]=="from")
+        {
+            fromindex=i;
+            break;
+        }
     }
 
-    if (!isTablePresent(tname, requiredline)){
+    tname = querytocons[fromindex+1];
+
+    string requiredline;
+    vector<string> tableinfo;
+    map<string, int> collist;
+    vector<string> colnamecheck;
+    int whereindex = 0;
+
+    vector<int> st;
+    vector<string> selectedcolumns;
+    // if (querytocons.size() < 4 or querytocons[querytocons.size() - 3] != "from")
+    // {
+    //     cout << "Incorrect Query" << endl;
+    //     return;
+    // }
+
+    if (!isTablePresent(tname, requiredline))
+    {
         cout << "Table does not exists.." << endl;
         return;
     }
-    else{
-         tokenize(requiredline,"#",tableinfo);
+    else
+    {
+        tokenize(requiredline, "#", tableinfo);
         // for(auto it:tableinfo)
         // {
         //     cout<<it<<" ";
         // }
-        
-        int cnt=0;
-        for(int i = 1;i<tableinfo.size();i+=2)
+
+        int cnt = 0;
+        for (int i = 1; i < tableinfo.size(); i += 2)
         {
             collist[tableinfo[i]] = cnt;
             colnamecheck.push_back(tableinfo[i]);
-            
+
             cnt++;
         }
         // for(auto it:collist)
@@ -211,96 +248,184 @@ void selectCol(vector<string> &querytocons)
         // cout<<requiredline<<endl;
         fstream table;
         string line;
-        //ofstream fout;
-        ifstream myfile(tname+".txt");
+        // ofstream fout;
+        ifstream myfile(tname + ".txt");
 
-        if (myfile.is_open())
-        {  if(querytocons[1]=="*")
+        // check if where present
+
+        for (int i = 0; i < querytocons.size(); i++)
+        {
+            if (querytocons[i] == "where")
             {
-                while ( getline (myfile,line) )
-                {   for(int i=0;i<line.length();i++)
-                        {   if(line[i] == '#')
-                                cout<<" ";
+                whereindex = i;
+                break;
+            }
+        }
+        
+      //  cout<<whereindex<<endl;
+        if (myfile.is_open())
+        {
+            if (querytocons[1] == "*")
+            {
+                if (whereindex == 0)
+                {
+                    while (getline(myfile, line))
+                    {
+                        for (int i = 0; i < line.length(); i++)
+                        {
+                            if (line[i] == '#')
+                                cout << " ";
                             else
                                 cout << line[i];
                         }
+                        cout<<endl;
+                    }
+                }
+                else if (whereindex == 4)
+                { /* string wherecheck="";
+                   for(int i = whereindex+1;i<querytocons.size();i++)
+                   {
+                       wherecheck+=querytocons[i];
+                   }*/
+
+                    while (getline(myfile, line))
+                    {
+                        vector<string> wherecondition;
+                        
+                        tokenize(line, "#", wherecondition);
+
+                        for (int i = 0; i < querytocons.size(); i++)
+                        {
+
+                            if (collist.find(querytocons[i]) != collist.end())
+                            {   
+                                
+                                int pos = collist[querytocons[i]];
+                                // cout<<pos<<" "<<querytocons[i+2]<<endl;
+                                int flag = 0;
+                                
+                                    if(querytocons[i+1]== "=")
+                                    {
+                                     if (wherecondition[pos + 1] == querytocons[i + 2])
+                                        flag=1;
+                                    }
+                                    else if(querytocons[i+1] ==">")
+                                    {
+                                     if (wherecondition[pos + 1] > querytocons[i + 2])
+                                     {
+                                         
+                                           flag=1;
+                                     }
+                                      
+                                    }
+                                    else if(querytocons[i+1] ==">=")
+                                    {
+                                    if (wherecondition[pos + 1] >= querytocons[i + 2])
+                                        flag=1;
+                                    }
+                                   else if(querytocons[i+1]== "<")
+                                    {
+                                    if (wherecondition[pos + 1] < querytocons[i + 2])
+                                        flag=1;
+                                    }
+                                    else if(querytocons[i+1]== "<=")
+                                    {
+                                    if (wherecondition[pos + 1] <= querytocons[i + 2])
+                                        flag=1;
+                                    }
+                                    else if(querytocons[i+1]== "!=")
+                                    {
+                                    if (wherecondition[pos + 1] != querytocons[i + 2])
+                                        flag=1;
+                                    }
+                                    else
+                                      cout<<"incorrect operator!!!!!!!!!!!"<<endl;
+
+                                
+                                if (flag)
+                                {
+   
+                                      for(auto it:wherecondition)
+                                      {
+                                          cout<<it<<" ";
+                                      }
+                                      cout<<endl;
+                                       
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    cout << "ERROR IN WHERE" << endl;
                 }
             }
+
             else
             {
-                //for selected columns
-                 int ind = 1;
-                while(querytocons[ind]!="from")
-                {   
-                    if(querytocons[ind]!=",")
+                // for selected columns
+                int ind = 1;
+                while (querytocons[ind] != "from")
+                {
+                    if (querytocons[ind] != ",")
                     {
-                       // cout<<querytocons[ind]<<" ";
+                        // cout<<querytocons[ind]<<" ";
                         selectedcolumns.push_back(querytocons[ind]);
                         int pos = collist[querytocons[ind]];
                         st.push_back(pos);
                     }
 
-
                     ind++;
-                } 
-
-                for(auto it:collist)
-                {
-                    cout<<it.first<<" ";
                 }
-                cout<<endl;
-                cout<<"****"<<endl;
-                for(auto it:selectedcolumns)
-                {   
+
+                for (auto it : collist)
+                {
+                    cout << it.first << " ";
+                }
+                cout << endl;
+                cout << "****" << endl;
+                for (auto it : selectedcolumns)
+                {
                     vector<string>::iterator iter;
-                    iter = find (colnamecheck.begin(),colnamecheck.end(), it);
-                    if(iter==colnamecheck.end())
+                    iter = find(colnamecheck.begin(), colnamecheck.end(), it);
+                    if (iter == colnamecheck.end())
                     {
-                        cout<<"please add right col name"<<endl;
+                        cout << "please add right col name" << endl;
                         return;
                     }
 
-                   // cout<<it<<" ";
+                    // cout<<it<<" ";
                 }
 
-                while ( getline (myfile,line) )
-                {   
+                while (getline(myfile, line))
+                {
 
-                     vector<string> data;
+                    vector<string> data;
                     // cout<<"hello"<<endl;
-                     tokenize(line,"#",data);
+                    tokenize(line, "#", data);
                     //  for(auto it:data)
                     //  {
                     //      cout<<it<<" ";
                     //  }
-                     for(auto it:st)
-                     {  // cout<<it<<" ";
-                         cout<<data[it+1]<<" ";
-
-                     }
-                     cout<<endl;
-
-
-
+                    for (auto it : st)
+                    { // cout<<it<<" ";
+                        cout << data[it + 1] << " ";
+                    }
+                    cout << endl;
                 }
-
-
-
             }
-
 
             myfile.close();
         }
 
-        else cout << "Unable to open file";
-
-
-
-
+        else
+            cout << "Unable to open file";
     }
 }
 
-void create(vector<string> &querytocons){
+void create(vector<string> &querytocons)
+{
     ofstream fout, foutfortable;
 
     string schema = "schema.txt";
@@ -316,15 +441,18 @@ void create(vector<string> &querytocons){
         getline(table, currentline);
         cout.flush();
 
-        if (currentline.substr(0, table_name.length()) == table_name){
+        if (currentline.substr(0, table_name.length()) == table_name)
+        {
             tablepresent = true;
         }
     }
 
-    if (tablepresent == true){
+    if (tablepresent == true)
+    {
         cout << "Table already exists!" << endl;
     }
-    else{
+    else
+    {
         vector<string> query;
         query = querytocons;
 
@@ -336,12 +464,15 @@ void create(vector<string> &querytocons){
 
         fout << querytocons[2];
         int j;
-        for (j = 5; j < querytocons.size(); j += 3){
+        for (j = 5; j < querytocons.size(); j += 3)
+        {
             // cout << querytocons[j] << " ";
-            if (querytocons[j].substr(0, 4) == "char"){
+            if (querytocons[j].substr(0, 4) == "char")
+            {
                 fout << "#" << querytocons[j - 1] << "#" << querytocons[j];
             }
-            else {
+            else
+            {
                 fout << "#" << querytocons[j - 1] << "#" << querytocons[j];
             }
             // if (querytocons[j] == "primary"){
@@ -381,58 +512,58 @@ void create(vector<string> &querytocons){
 
 bool checkint(string temp)
 {
-   for(auto it:temp)
-   {
-       if(isdigit(it)==0)
-       {
-           return false;
-       }
-   }
-   return true;
+    for (auto it : temp)
+    {
+        if (isdigit(it) == 0)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 bool checkdouble(string temp)
 {
-   for(auto it:temp)
-   {
-       if(it=='.')
-       {
-           continue;
-       }
-       if(isdigit(it)==0)
-       {
-           return false;
-       }
-   }
-   return true;
+    for (auto it : temp)
+    {
+        if (it == '.')
+        {
+            continue;
+        }
+        if (isdigit(it) == 0)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool checkchar(string temp)
 {
 
-   for(auto it:temp)
-   {
-       if(isdigit(it)==0)
-       {
-           continue;
-       }
-       else
-       {
-          return false;
-       }
-   }
-   return true;
+    for (auto it : temp)
+    {
+        if (isdigit(it) == 0)
+        {
+            continue;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
-
-void insertquery(vector<string> querytocons){
+void insertquery(vector<string> querytocons)
+{
 
     string table_name = querytocons[2];
-    string tname=querytocons[2]+".txt";
+    string tname = querytocons[2] + ".txt";
     string schema = "schema.txt";
     ifstream table(schema);
-    string currline="";
-    bool tablepresent=false;
-     while (table)
+    string currline = "";
+    bool tablepresent = false;
+    while (table)
     {
         string currentline;
         getline(table, currentline);
@@ -445,9 +576,9 @@ void insertquery(vector<string> querytocons){
             break;
         }
     }
-    if(tablepresent==false)
+    if (tablepresent == false)
     {
-        cout<<"Table does not exist "<<endl;
+        cout << "Table does not exist " << endl;
         return;
     }
 
@@ -455,14 +586,14 @@ void insertquery(vector<string> querytocons){
     //  char *str = currline.c_str();
     // char *token = strtok(currline.c_str(), "#");
 
-    tokenize(currline,"#",dtypes);
+    tokenize(currline, "#", dtypes);
     // for(int i=0;i<dtypes.size();i++)
     // {
     //     cout<<dtypes[i]<<" ";
     // }
 
     vector<string> dtypetocons;
-    for(int i = 2;i<dtypes.size();i+=2)
+    for (int i = 2; i < dtypes.size(); i += 2)
     {
         dtypetocons.push_back(dtypes[i]);
     }
@@ -471,15 +602,14 @@ void insertquery(vector<string> querytocons){
     // {
     //     cout<<dtypetocons[i]<<" ";
     // }
-    cout<<endl;
-   // return;
-
+    cout << endl;
+    // return;
 
     vector<string> datatoinsert;
 
-    for(int i=5;i<querytocons.size()-2;i++)
+    for (int i = 5; i < querytocons.size() - 2; i++)
     {
-        if(querytocons[i]!=",")
+        if (querytocons[i] != ",")
         {
             datatoinsert.push_back(querytocons[i]);
         }
@@ -489,68 +619,65 @@ void insertquery(vector<string> querytocons){
     // {
     //     cout<<it<<" ";
     // }
-    if(datatoinsert.size()!=dtypetocons.size())
+    if (datatoinsert.size() != dtypetocons.size())
     {
-        cout<<"Please add the necessary attributes only"<<endl;
+        cout << "Please add the necessary attributes only" << endl;
         return;
     }
 
-    for(int i = 0;i<datatoinsert.size();i++)
+    for (int i = 0; i < datatoinsert.size(); i++)
     {
-        if(dtypetocons[i]=="char" or dtypetocons[i]=="str")
+        if (dtypetocons[i] == "char" or dtypetocons[i] == "str")
         {
-            if(checkchar(datatoinsert[i])==false)
+            if (checkchar(datatoinsert[i]) == false)
             {
-                  cout<<" error!!!!wrong datatype"<<endl;
+                cout << " error!!!!wrong datatype" << endl;
                 return;
             }
         }
-        else if(dtypetocons[i]=="int")
+        else if (dtypetocons[i] == "int")
         {
-            if(checkint(datatoinsert[i])==false)
+            if (checkint(datatoinsert[i]) == false)
             {
-                  cout<<" error!!!!wrong datatype"<<endl;
+                cout << " error!!!!wrong datatype" << endl;
                 return;
             }
         }
-        else if(dtypetocons[i]=="double" or dtypetocons[i]=="number")
+        else if (dtypetocons[i] == "double" or dtypetocons[i] == "number")
         {
-             if(checkdouble(datatoinsert[i])==false)
+            if (checkdouble(datatoinsert[i]) == false)
             {
-                cout<<" error!!!!wrong datatype"<<endl;
+                cout << " error!!!!wrong datatype" << endl;
                 return;
             }
         }
     }
 
-    //return;
+    // return;
     ofstream insert_table;
-    insert_table.open(tname,std::ios_base::app);
+    insert_table.open(tname, std::ios_base::app);
 
+    if (insert_table)
+    {
 
-        if(insert_table){
-
-
-
-            for(int i=5;i<querytocons.size()-2;i++){
-             if(querytocons[i] != ",")
-             {
-             insert_table<<"#"<<querytocons[i];
-             }
+        for (int i = 5; i < querytocons.size() - 2; i++)
+        {
+            if (querytocons[i] != ",")
+            {
+                insert_table << "#" << querytocons[i];
             }
-             insert_table<<endl;
-            cout<<"Data Inserted"<<endl;
-
         }
-
-
-        else{
-            cout<<"Table does not exists"<<endl;
-            }
-
-
-        insert_table.close();
+        insert_table << endl;
+        cout << "Data Inserted" << endl;
     }
+
+    else
+    {
+        cout << "Table does not exists" << endl;
+    }
+
+    insert_table.close();
+}
 
 int main()
 {
@@ -560,68 +687,81 @@ int main()
     stringstream ss(s);
     string temp;
     vector<string> querytocons;
-    while (ss >> temp){
+    while (ss >> temp)
+    {
         transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
         querytocons.push_back(temp);
     }
 
-    if (querytocons[0] == "create"){
-        if (querytocons[1] == "table"){
+    if (querytocons[0] == "create")
+    {
+        if (querytocons[1] == "table")
+        {
 
-            if (querytocons[3] == "(" and querytocons[querytocons.size() - 1] == ";" and querytocons[querytocons.size() - 2] == ")"){
+            if (querytocons[3] == "(" and querytocons[querytocons.size() - 1] == ";" and querytocons[querytocons.size() - 2] == ")")
+            {
                 bool corr = true;
-                for (int i = 6; i < querytocons.size() - 2; i += 3){
-                    if (querytocons[i] != ","){
+                for (int i = 6; i < querytocons.size() - 2; i += 3)
+                {
+                    if (querytocons[i] != ",")
+                    {
                         corr = false;
                         break;
                     }
                 }
-                if (corr){
+                if (corr)
+                {
                     create(querytocons);
                 }
 
-                else{
+                else
+                {
                     cout << "Incorrect Query" << endl;
                 }
             }
-            else{
+            else
+            {
                 if (querytocons[querytocons.size() - 1] != ";")
                     cout << "Please provide ; at the end" << endl;
                 else
                     cout << "Incorrect Query!!" << endl;
             }
         }
-        else{
+        else
+        {
             cout << "Incorrect syntax!!!" << endl;
         }
     }
-    else if (querytocons[0] == "drop"){
-        if (querytocons[1] == "table"){
+    else if (querytocons[0] == "drop")
+    {
+        if (querytocons[1] == "table")
+        {
             dropTable(querytocons);
         }
     }
-    else if (querytocons[0] == "describe"){
+    else if (querytocons[0] == "describe")
+    {
         describeTable(querytocons);
     }
-    else if(querytocons[0]=="insert")
+    else if (querytocons[0] == "insert")
     {
-        if(querytocons[querytocons.size()-1]!=";")
+        if (querytocons[querytocons.size() - 1] != ";")
         {
-              cout << "Please provide ; at the end" << endl;
+            cout << "Please provide ; at the end" << endl;
         }
         else
         {
-           insertquery(querytocons);
+            insertquery(querytocons);
         }
     }
-    else if(querytocons[0]=="truncate")
+    else if (querytocons[0] == "truncate")
     {
-        if (querytocons[1] == "table"){
+        if (querytocons[1] == "table")
+        {
             truncateTable(querytocons);
         }
-
     }
-    else if(querytocons[0]=="select")
+    else if (querytocons[0] == "select")
     {
         selectCol(querytocons);
     }
