@@ -1,3 +1,4 @@
 stud#id#int#name#str#class#int
 sid#name#char#roll#int
 test#trial#int
+student#rollno#int#name#char#marks#double
