@@ -1,5 +1,2 @@
-#1#abc#0
-#2#john#100
-#4#kkk#0
-#10#steve#0
-#7#mnop#0
+#1#skm#100.0
+#2#siddhi#123

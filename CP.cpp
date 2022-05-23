@@ -40,26 +40,7 @@ bool isTablePresent(string tname, string &deleteline)
     return tablepresent;
 }
 
-// void insert(vector<string> &querytocons){
-//     string schema = "schema.txt";
-//     string tname = querytocons[2];
-//     string requiredline;
-//     if (querytocons.size() < 2){
-//         cout << "Incorrect Query" << endl;
-//         return;
-//     }
 
-//     if (!isTablePresent(tname, requiredline))
-//     {
-//         cout << "Table does not exists.." << endl;
-//     }
-
-//     if (querytocons[3] == "values"){
-//         if (querytocons[4] == "("){
-
-//         }
-//     }
-// }
 
 void describeTable(vector<string> &querytocons)
 {
@@ -180,6 +161,10 @@ void truncateTable(vector<string> &querytocons)
         strcpy(char_array, toRemove.c_str());
 
         int r = remove(char_array);
+
+        std::ofstream ofs;
+        ofs.open(toRemove, std::ofstream::out | std::ofstream::trunc);
+        ofs.close();
     }
 }
 void selectCol(vector<string> &querytocons)
@@ -656,19 +641,133 @@ void update(vector<string> &querytocons)
             //     }
             // }
         }
-       
-            else
-            {
-                // 0        1    2   3   4  5   6
-                // UPDATE stud SET name ='Juan';
 
-                int k = 3;
-                while (k < querytocons.size())
+        else
+        {
+            // 0        1    2   3   4  5   6
+            // UPDATE stud SET name ='Juan';
+
+            int k = 3;
+            while (k < querytocons.size())
+            {
+                mp[querytocons[k]] = querytocons[k + 2]; // map<column that needs to be updated , value of new data>
+                k += 4;
+            }
+
+            ofstream fout;
+            fout.open("tempfile.txt", ios::out);
+            table.open(tname + ".txt", ios::in);
+            int i = 1;
+            string line;
+            while (getline(table, line))
+            {
+                // cout << "In " << i << endl;
+                // i++;
+                vector<string> data;
+                tokenize(line, "#", data);
+
+                for (auto m : mp)
                 {
-                    mp[querytocons[k]] = querytocons[k + 2]; // map<column that needs to be updated , value of new data>
-                    k += 4;
+                    int reqpos = collist[m.first];
+                    cout << data[reqpos + 1] << ":->" << m.second << endl;
+                    data[reqpos + 1] = m.second;
                 }
 
+                //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
+
+                string finalline = "";
+                for (auto it : data)
+                {
+                    cout << it << " ";
+                    finalline += it;
+                    finalline += "#";
+                }
+                finalline.pop_back();
+                fout.write(finalline.data(), finalline.size());
+                fout << endl;
+            }
+            fout.close();
+            table.close();
+
+            // first remove original table->rename tempfile to original name of table
+            string toRemove = tname + ".txt";
+            char char_array[toRemove.size() + 1];
+            strcpy(char_array, toRemove.c_str());
+
+            int size = toRemove.size();
+            char newname[size + 1];
+            strcpy(newname, toRemove.c_str());
+            // for(int i = 0;i<=size;i++)
+            // {
+            //     newname[i] = toRemove[i];
+            // }
+
+            int r = remove(char_array);
+            cout << r << endl;
+
+            rename("tempfile.txt", newname);
+        }
+    }
+}
+
+void deletequery(vector<string> &querytocons)
+{
+
+    string tname = querytocons[2];
+    string requiredline;
+    vector<string> tableinfo;
+    map<string, int> collist; // maping of colname and its index
+    vector<string> colnamecheck;
+    int whereindex = -1;
+    int setindex = -1;
+    map<string, string> mp; // updation required for these column
+    string conditioncolumn;
+    fstream table; // tablename
+    string line;
+
+    if (!isTablePresent(tname, requiredline))
+    {
+        cout << "Table does not exists.." << endl;
+        return;
+    }
+    else
+    {
+        tokenize(requiredline, "#", tableinfo);
+
+        int cnt = 0;
+        for (int i = 1; i < tableinfo.size(); i += 2)
+        {
+            collist[tableinfo[i]] = cnt;
+            colnamecheck.push_back(tableinfo[i]);
+
+            cnt++;
+        }
+
+        for (int i = 0; i < querytocons.size(); i++)
+        {
+            if (querytocons[i] == "where")
+            {
+                whereindex = i;
+                break;
+            }
+        }
+
+        if (whereindex != -1)
+        {
+            conditioncolumn = querytocons[whereindex + 1];
+
+            // int k = setindex + 1;
+
+            // while (k < whereindex)
+            // {
+            //     mp[querytocons[k]] = querytocons[k + 2]; // map<column that needs to be updated , value of new data>
+            //     k += 4;
+            // }
+
+            int conditioncolpos = collist[conditioncolumn];
+
+            if (querytocons[whereindex + 2] == "=")
+            {
                 ofstream fout;
                 fout.open("tempfile.txt", ios::out);
                 table.open(tname + ".txt", ios::in);
@@ -681,25 +780,34 @@ void update(vector<string> &querytocons)
                     vector<string> data;
                     tokenize(line, "#", data);
 
-                    for (auto m : mp)
-                    {
-                        int reqpos = collist[m.first];
-                        cout << data[reqpos + 1] << ":->" << m.second << endl;
-                        data[reqpos + 1] = m.second;
-                    }
+                    // for (auto m : mp)
+                    // {
+                    //     int reqpos = collist[m.first];
+                    //     cout << data[reqpos + 1] << ":->" << m.second << endl;
+                    //     data[reqpos + 1] = m.second;
+                    // }
 
-                    //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
-
-                    string finalline = "";
-                    for (auto it : data)
+                    if (data[conditioncolpos + 1] == querytocons[whereindex + 3])
                     {
-                        cout << it << " ";
-                        finalline += it;
-                        finalline += "#";
+
+                        //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
+                        continue;
+                        // string finalline = "";
+                        // for (auto it : data)
+                        // {
+                        //     cout << it << " ";
+                        //     finalline += it;
+                        //     finalline += "#";
+                        // }
+                        // finalline.pop_back();
+                        // fout.write(finalline.data(), finalline.size());
+                        // fout << endl;
                     }
-                    finalline.pop_back();
-                    fout.write(finalline.data(), finalline.size());
-                    fout << endl;
+                    else
+                    {
+                        fout.write(line.data(), line.size());
+                        fout << endl;
+                    }
                 }
                 fout.close();
                 table.close();
@@ -708,21 +816,199 @@ void update(vector<string> &querytocons)
                 string toRemove = tname + ".txt";
                 char char_array[toRemove.size() + 1];
                 strcpy(char_array, toRemove.c_str());
-                
-                int size = toRemove.size();
-                char newname[size+1];
-                strcpy(newname,toRemove.c_str());
-                // for(int i = 0;i<=size;i++)
-                // {
-                //     newname[i] = toRemove[i];
-                // }
 
                 int r = remove(char_array);
                 cout << r << endl;
 
-                rename("tempfile.txt", newname);
+                rename("tempfile.txt", char_array);
             }
-        
+            else if (querytocons[whereindex + 2] == ">")
+            {
+                ofstream fout;
+                fout.open("tempfile.txt", ios::out);
+                table.open(tname + ".txt", ios::in);
+                int i = 1;
+                string line;
+                while (getline(table, line))
+                {
+                    // cout << "In " << i << endl;
+                    // i++;
+                    vector<string> data;
+                    tokenize(line, "#", data);
+
+                    // for (auto m : mp)
+                    // {
+                    //     int reqpos = collist[m.first];
+                    //     cout << data[reqpos + 1] << ":->" << m.second << endl;
+                    //     data[reqpos + 1] = m.second;
+                    // }
+
+                    if (data[conditioncolpos + 1] > querytocons[whereindex + 3])
+                    {
+
+                        //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
+                        continue;
+                        // string finalline = "";
+                        // for (auto it : data)
+                        // {
+                        //     cout << it << " ";
+                        //     finalline += it;
+                        //     finalline += "#";
+                        // }
+                        // finalline.pop_back();
+                        // fout.write(finalline.data(), finalline.size());
+                        // fout << endl;
+                    }
+                    else
+                    {
+                        fout.write(line.data(), line.size());
+                        fout << endl;
+                    }
+                }
+                fout.close();
+                table.close();
+
+                // first remove original table->rename tempfile to original name of table
+                string toRemove = tname + ".txt";
+                char char_array[toRemove.size() + 1];
+                strcpy(char_array, toRemove.c_str());
+
+                int r = remove(char_array);
+                cout << r << endl;
+
+                rename("tempfile.txt", char_array);
+            }
+            else if (querytocons[whereindex + 2] == "<")
+            {
+                ofstream fout;
+                fout.open("tempfile.txt", ios::out);
+                table.open(tname + ".txt", ios::in);
+                int i = 1;
+                string line;
+                while (getline(table, line))
+                {
+                    // cout << "In " << i << endl;
+                    // i++;
+                    vector<string> data;
+                    tokenize(line, "#", data);
+
+                    // for (auto m : mp)
+                    // {
+                    //     int reqpos = collist[m.first];
+                    //     cout << data[reqpos + 1] << ":->" << m.second << endl;
+                    //     data[reqpos + 1] = m.second;
+                    // }
+
+                    if (data[conditioncolpos + 1] < querytocons[whereindex + 3])
+                    {
+
+                        //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
+                        continue;
+                        // string finalline = "";
+                        // for (auto it : data)
+                        // {
+                        //     cout << it << " ";
+                        //     finalline += it;
+                        //     finalline += "#";
+                        // }
+                        // finalline.pop_back();
+                        // fout.write(finalline.data(), finalline.size());
+                        // fout << endl;
+                    }
+                    else
+                    {
+                        fout.write(line.data(), line.size());
+                        fout << endl;
+                    }
+                }
+                fout.close();
+                table.close();
+
+                // first remove original table->rename tempfile to original name of table
+                string toRemove = tname + ".txt";
+                char char_array[toRemove.size() + 1];
+                strcpy(char_array, toRemove.c_str());
+
+                int r = remove(char_array);
+                cout << r << endl;
+
+                rename("tempfile.txt", char_array);
+            }
+            //    // if (data[conditioncolpos + 1] == querytocons[whereindex + 3])
+            //      if(querytocons[whereindex+2]=="=")
+            //     {
+
+            //     }
+            // }
+        }
+
+        else
+        {
+            // 0        1    2   3   4  5   6
+            // UPDATE stud SET name ='Juan';
+
+            truncateTable(querytocons);
+
+            // int k = 3;
+            // while (k < querytocons.size())
+            // {
+            //     mp[querytocons[k]] = querytocons[k + 2]; // map<column that needs to be updated , value of new data>
+            //     k += 4;
+            // }
+
+            // ofstream fout;
+            // fout.open("tempfile.txt", ios::out);
+            // table.open(tname + ".txt", ios::in);
+            // int i = 1;
+            // string line;
+            // while (getline(table, line))
+            // {
+            //     // cout << "In " << i << endl;
+            //     // i++;
+            //     vector<string> data;
+            //     tokenize(line, "#", data);
+
+            //     // for (auto m : mp)
+            //     // {
+            //     //     int reqpos = collist[m.first];
+            //     //     cout << data[reqpos + 1] << ":->" << m.second << endl;
+            //     //     data[reqpos + 1] = m.second;
+            //     // }
+
+            //     //  cout<<data[conditioncolpos+1]<<" "<<querytocons[whereindex+3]<<endl;
+
+            //     string finalline = "";
+            //     for (auto it : data)
+            //     {
+            //         cout << it << " ";
+            //         finalline += it;
+            //         finalline += "#";
+            //     }
+            //     finalline.pop_back();
+            //     fout.write(finalline.data(), finalline.size());
+            //     fout << endl;
+            // }
+            // fout.close();
+            // table.close();
+
+            // // first remove original table->rename tempfile to original name of table
+            // string toRemove = tname + ".txt";
+            // char char_array[toRemove.size() + 1];
+            // strcpy(char_array, toRemove.c_str());
+
+            // int size = toRemove.size();
+            // char newname[size+1];
+            // strcpy(newname,toRemove.c_str());
+            // // for(int i = 0;i<=size;i++)
+            // // {
+            // //     newname[i] = toRemove[i];
+            // // }
+
+            // int r = remove(char_array);
+            // cout << r << endl;
+
+            // rename("tempfile.txt", newname);
+        }
     }
 }
 
@@ -1069,6 +1355,10 @@ int main()
     else if (querytocons[0] == "update")
     {
         update(querytocons);
+    }
+    else if (querytocons[0] == "delete")
+    {
+        deletequery(querytocons);
     }
 
     return 0;
