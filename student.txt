@@ -1,2 +1,6 @@
-#10#skm#100.0
-#10#siddhi#123
+#1#satyam#100
+#2#gayatri#130
+#3#junaid#100
+#4#siddhi#120
+#5#virat#100
+#6#sachin#120
