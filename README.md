@@ -1,4 +1,4 @@
-# WT_CP
+# DBMS_CP
 
 ### In this project, we are going to design and implement a small-scale relational database management system (DBMS). 
 - Data: any information worth preserving, most likely in electronic form. 
